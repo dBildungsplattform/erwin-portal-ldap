@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+{{- if .Values.service.annotations }}
+  annotations:
+{{ toYaml .Values.service.annotations | indent 4 }}
+{{- end }}
+  name: {{ template "openldap.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: {{ template "openldap.fullname" . }}
+    chart: {{ template "openldap.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+{{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if .Values.service.externalIp }}
+  loadBalancerIP: {{ (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret.name ).data.LOADBALANCER_IP | b64dec }}
+  {{- end }}
+  {{- if  .Values.service.SourceRangesRestriction }}
+  loadBalancerSourceRanges: {{ (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret.name ).data.LOADBALANCER_SOURCERANGES | b64dec }}
+  {{- end }}
+  ports:
+    {{- if .Values.service.enableLdapPort }}
+    - name: ldap-port
+      protocol: TCP
+      port: {{ .Values.global.ldapPort }}
+      targetPort: ldap-port
+      {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) (not (empty .Values.service.ldapPortNodePort)) }}
+      nodePort: {{ .Values.service.ldapPortNodePort }}
+      {{- else if eq .Values.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+    {{- end }}
+    {{- if .Values.service.enableSslLdapPort }}
+    - name: ssl-ldap-port
+      protocol: TCP
+      port: {{ .Values.global.sslLdapPort }}
+      targetPort: ssl-ldap-port
+      {{- if and (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) (not (empty .Values.service.sslLdapPortNodePort)) }}
+      nodePort: {{ .Values.service.sslLdapPortNodePort }}
+      {{- else if eq .Values.service.type "ClusterIP" }}
+      nodePort: null
+      {{- end }}
+    {{- end }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  selector:
+    app.kubernetes.io/component: {{ template "openldap.fullname" . }}
+    release: {{ .Release.Name }}

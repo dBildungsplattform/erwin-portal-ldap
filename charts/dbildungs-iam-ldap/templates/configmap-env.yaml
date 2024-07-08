@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "openldap.fullname" . }}-env
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "openldap.name" . }}
+    chart: {{ template "openldap.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+{{- end }}
+data:
+  LDAP_ROOT: {{ include "global.baseDomain" . }}
+  LDAP_EXTRA_SCHEMAS: {{ print "cosine,inetorgperson,nis," (include "openldap.schemaFiles" .) }}
+  LDAP_TLS_CERT_FILE: /opt/bitnami/openldap/certs/tls.crt
+  LDAP_TLS_KEY_FILE: /opt/bitnami/openldap/certs/tls.key
+  # the var has to be set even though we do not provide a value # content of tls.crt seems to get inserted if nothing is provided
+  LDAP_TLS_CA_FILE: /opt/bitnami/openldap/certs/ca.crt
+  {{- if .Values.global.configUserEnabled }}
+  LDAP_CONFIG_ADMIN_ENABLED: "yes"
+  LDAP_CONFIG_ADMIN_USERNAME: "{{ .Values.global.configUser }}"
+  {{- else }}
+  LDAP_CONFIG_ADMIN_ENABLED: "no"
+  {{- end }}
+{{ toYaml .Values.env | indent 2 }}

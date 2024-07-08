@@ -1,0 +1,19 @@
+apiVersion: v2
+name: dbildungs-iam-ldap
+version: 0.0.1
+description: Helm Chart for using community developed OpenLDAP software
+appVersion: ""
+dependencies:
+- condition: phpldapadmin.enabled
+  name: phpldapadmin
+  repository: ""
+  version: 0.1.x
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  tags:
+  - bitnami-common
+  version: ~2
+home: https://www.openldap.org
+keywords:
+- ldap
+- openldap

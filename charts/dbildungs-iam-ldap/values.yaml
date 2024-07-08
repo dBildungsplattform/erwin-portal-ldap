@@ -1,0 +1,351 @@
+global:
+  imageRegistry: ""
+  #imagePullSecrets: [""]
+  ## ldapDomain , can be explicit (e.g dc=example,c=com) or domain based (e.g example.com)
+  ldapDomain: "schule-sh.de"                  # translates to LDAP_ROOT
+  # Specifies an existing secret to be used for admin and config user passwords. The expected key are LDAP_ADMIN_PASSWORD and LDAP_CONFIG_ADMIN_PASSWORD.
+  existingSecret: ""
+  # If you do not set the credentials via this secret but via the ENV the Helm Chart will fail (permission issue)
+  adminUser: "admin"                          # LDAP_ADMIN_USERNAME
+  # adminPassword: ""                         # LDAP_CONFIG_ADMIN_PASSWORD
+  configUserEnabled: true                     # LDAP_CONFIG_ADMIN_ENABLED (default: no)
+  configUser: "config"                        # LDAP_CONFIG_ADMIN_USERNAME
+  # configPassword: ""                        # LDAP_CONFIG_ADMIN_USERNAME
+  ldapPort: 389                               # LDAP_PORT_NUMBER
+  sslLdapPort: 636                            # LDAP_LDAPS_PORT_NUMBER
+
+nameOverride: ""
+fullnameOverride: ""
+
+
+# this is not so clean -can this get deleted? 
+# used extra secret var since you can not reference the global one
+existingSecret:
+  enabled: true
+  name: dbildungs-iam-ldap
+
+image:
+  repository: bitnami/openldap
+  tag: 2.6.6
+  pullPolicy: Always
+  pullSecrets: []
+
+extraLabels: {}
+
+service:
+  annotations: {}
+  ## If service type NodePort, define the value here
+  # ldapPortNodePort:
+  # sslLdapPortNodePort:
+
+  enableLdapPort: true
+  enableSslLdapPort: true
+
+  sessionAffinity: None
+  type: ClusterIP 
+  # type: LoadBalancer
+  externalIp: false
+  # if enabled you need to have to set the LOADBALANCER_IP key with value in the existingSecret
+  # externalIp: true
+  SourceRangesRestriction: false
+  # if enabled you need to have to set the LOADBALANCER_SOURCERANGES key with value in the existingSecret
+  # servicecenter für den prometheus blackbox exporter freischalten
+  # SourceRangesRestriction: true
+  # enableLdapPort: false
+
+# enable this service block and disable the service one above, to make LDAP outside the cluster available 
+# Note that only one namespace at a time can use this feature!!
+# service:
+#   enableSslLdapPort: true
+#   type: LoadBalancer
+#   externalIp: true
+#   SourceRangesRestriction: false
+
+
+# Use the env variables from https://hub.docker.com/r/bitnami/openldap/
+env:
+  BITNAMI_DEBUG: "true"
+  LDAP_LOGLEVEL: "256"
+  # LDAP_LOGLEVEL: "16384"
+
+  # Configuration
+  LDAP_SKIP_DEFAULT_TREE: "yes"
+  LDAP_ULIMIT_NOFILES: "1024" # staging and prod: 4096
+  # if something is not needed it can get removed by just not mentioning it here # order is importand, do not put nis in front, always append it
+  # is this is enabled replication is not working
+  # LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis
+
+  # Security
+  LDAP_ENABLE_TLS: "yes" 
+  # LDAP_ENABLE_TLS: "no" # disable it for testing with phpldapadmin
+  # LDAP_REQUIRE_TLS: "yes" # not sure whether this is necessary, it breaks stuff
+  LDAPTLS_REQCERT: "never"
+  LDAP_TLS_ENFORCE: "false"
+  LDAP_ALLOW_ANON_BINDING: "no" 
+
+  # Accesslog
+  LDAP_ENABLE_ACCESSLOG: "yes" 
+  LDAP_ACCESSLOG_LOGPURGE: "30+00:00 30+00:00" # min and max value
+
+pdb:
+  enabled: false
+  minAvailable: 1
+  maxUnavailable: ""
+
+# Custom openldap schema files used to be used in addition to default schemas
+# Note that the supplied files are sorted by name and inserted into 'LDAP_EXTRA_SCHEMAS' env var
+# after chart default schemas, allowing you to control the loading sequence.
+# customSchemaFiles:
+#   custom.ldif: |-
+#     # custom schema
+#   anothercustom.ldif: |-
+#     # another custom schema
+
+
+# Custom openldap configuration files used to override default settings
+# can not get loaded if TLS is required ldap_bind: Confidentiality required (13) additional info: TLS confidentiality required
+# DO NOT FORGET to put the Root Organisation object as it won't be created while using customLdifFiles
+# Files that chage the general config or create ACL are not allowed here, insufficient permissions, they get hendled via the dbildungs-iam-ldap-configuration secret
+customLdifFiles:
+  00-root.ldif: |-
+    dn: dc=schule-sh,dc=de
+    dc: schule-sh
+    objectClass: dcObject
+    objectClass: organization
+    o: SPSH
+
+replicaCount: 1
+
+# will have to work on this
+replication:
+  enabled: false
+  clusterName: "cluster.local"
+  retry: 60
+  timeout: 1
+  interval: 00:00:00:10
+  starttls: "critical"
+  tls_reqcert: "never"
+
+persistence:
+  enabled: false
+  # existingClaim: openldap-pvc
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+  storageClass: ""
+
+resources:
+  limits:
+    cpu: 2
+    memory: 4G
+  requests:
+    cpu: 200m
+    memory: 200Mi
+
+# enabling other features makes it so that ldap container fails with not enough permissions
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsNonRoot: true
+  privileged: false
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  # capabilities:
+  #   drop: ["ALL"]
+  # seccompProfile:
+  #   type: "RuntimeDefault"
+
+podSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsNonRoot: true
+  privileged: false
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: "RuntimeDefault"
+
+existingConfigmap:
+command: []
+args: []
+hostAliases: []
+podLabels: {}
+podAnnotations: {}
+podAffinityPreset: ""
+podAntiAffinityPreset: soft
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+affinity: {}
+nodeSelector: {}
+tolerations: []
+updateStrategy:
+  type: RollingUpdate
+
+priorityClassName: ""
+schedulerName: ""
+
+extraEnvVars: []
+extraEnvVarsCM:
+extraEnvVarsSecret:
+extraVolumes: []
+extraVolumeMounts: []
+
+serviceAccount:
+  create: false
+  name: ""
+  automountServiceAccountToken: false
+  annotations: {}  
+
+kubeVersion: ""
+commonLabels: {}
+commonAnnotations: {}
+clusterDomain: cluster.local
+extraDeploy: []
+
+metrics:
+  enabled: true
+  replicaCount: 1
+  image:
+    # we should create an own forked repo and publish the image 
+    repository: ollijanatuinen/openldap-exporter
+    tag: v2.0
+    pullPolicy: IfNotPresent
+  ports:
+    - name: metrics
+      containerPort: 9330
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 500Mi
+
+  service:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    ports:
+      - name: metrics
+        port: 9330
+
+  ## Prometheus Operator ServiceMonitor configuration
+  serviceMonitor:
+    enabled: true
+    endpoints:
+      - port: "metrics"
+        path: /metrics
+
+## Init Container Parameters
+initSchema:
+  image: 
+    repository: debian
+    tag: latest
+    pullPolicy: Always
+    pullSecrets: []
+
+## initContainers:
+##  - name: your-image-name
+##    image: your-image
+##    imagePullPolicy: Always
+##    command: ['sh', '-c', 'echo "hello world"']
+##
+
+## 'initTlsSecret' init container parameters
+##  need a secret with tls.crt, tls.key 
+initTLSSecret:
+  # adminldap, per default disabled only works with tls_enabled
+  tls_enabled: false 
+  # tls_enabled: true # needs to get enabled if you want to make the service available to the outside 
+  # Note that only one namespace at a time can use this feature and that you need to copy a tls secret into the namespace, see Confluence for more information
+  image:
+    registry: docker.io
+    repository: alpine/openssl
+    tag: latest
+    pullPolicy: IfNotPresent
+  secret: "" 
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 200m
+      memory: 200Mi
+
+volumePermissions:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/bitnami-shell
+    tag: 10-debian-10
+    pullPolicy: IfNotPresent
+    command: [ 'sh', '-c', 'chmod -R g+rwX /bitnami' ]
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 200m
+      memory: 200Mi
+
+sidecars: {}
+
+lifecycleHooks: 
+  postStart:
+    exec:
+      command: ["sh", "-c", "/script/01.sh"]
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 10
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 10
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 1
+  successThreshold: 1
+  failureThreshold: 30
+customLivenessProbe: {}
+customReadinessProbe: {}
+customStartupProbe: {}
+
+## phpldapadmin
+## For more parameters check following file: ./charts/phpldapadmin/values.yaml
+# if you want to use phpldapadmin for debugging set:
+# initTLSSecret:
+   # tls_enabled: false 
+# env: 
+   # LDAP_ENABLE_TLS: "no" 
+phpldapadmin:
+  enabled: false
+  image:
+    tag: 0.9.0
+  env:
+    PHPLDAPADMIN_LDAP_CLIENT_TLS_REQCERT: "never"
+  ingress:
+    enabled: true
+    annotations: {}
+    # ingressClassName: nginx
+    path: /
+    pathType: Prefix
+    hosts:
+    - phpldapadmin.example
+    tls: []
+    # - secretName: phpldapadmin.example
+    #   hosts:
+    #   - phpldapadmin.example
