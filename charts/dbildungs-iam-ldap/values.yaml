@@ -95,28 +95,11 @@ pdb:
 # Custom openldap schema files used to be used in addition to default schemas
 # Note that the supplied files are sorted by name and inserted into 'LDAP_EXTRA_SCHEMAS' env var
 # after chart default schemas, allowing you to control the loading sequence.
-customSchemaFiles:
-  ucs_mail.ldif: |-
-    dn: cn=ucsMail,cn=schema,cn=config
-    objectClass: olcSchemaConfig
-    cn: ucsMail
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.41 NAME 'univentionCanonicalSenderRewriteEnabled'
-     DESC 'rewrite sender addresses?' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{10} SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.42 NAME 'univentionCanonicalRecipientRewriteEnabled'
-     DESC 'rewrite recipient addresses?' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{10} SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.43 NAME 'univentionInternalPrimaryMailAddress' 
-     DESC 'primary mail address of user' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.44 NAME 'univentionInternalAlternativeMailAddress' 
-     DESC 'additional mail addresses' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256}
-     )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.45 NAME 'univentionPublicPrimaryMailAddress' DESC 'public mail address of user' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.46 NAME 'univentionPublicAlternativeMailAddress' DESC 'additional mail addresses' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} )
-    olcObjectClasses: ( 1.3.6.1.4.1.10176.1010.2.40 NAME 'univentionMailCanonicalMaps' 
-     DESC 'data for rewriting mail addresses'
-     SUP top 
-     AUXILIARY MAY ( univentionCanonicalSenderRewriteEnabled $ univentionCanonicalRecipientRewriteEnabled $ univentionInternalPrimaryMailAddress $ univentionInternalAlternativeMailAddress $ univentionPublicPrimaryMailAddress $ univentionPublicAlternativeMailAddress ) )
-
-
+# customSchemaFiles:
+#   custom.ldif: |-
+#     # custom schema
+#   anothercustom.ldif: |-
+#     # another custom schema
 
 
 # Custom openldap configuration files used to override default settings
