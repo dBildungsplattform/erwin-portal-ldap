@@ -86,6 +86,8 @@ spec:
               mountPath: /ldap-configuration/apply/
             - name: ldap-configuration-modify
               mountPath: /ldap-configuration/modify/
+            - name: ldap-configuration-extra
+              mountPath: /ldap-configuration/extra/
     {{- if .Values.customSchemaFiles }}
       {{- range $file := (include "openldap.customSchemaFiles" . | split ",") }}
             - name: cm-custom-schema-files
@@ -263,6 +265,8 @@ spec:
               mountPath: /ldap-configuration/apply
             - name: ldap-configuration-modify
               mountPath: /ldap-configuration/modify
+            - name: ldap-configuration-extra
+              mountPath: /ldap-configuration/extra
             - name: certs
               mountPath: /opt/bitnami/openldap/certs
             {{- range $file := (include "openldap.builtinSchemaFiles" . | split ",") }}
@@ -280,14 +284,6 @@ spec:
 {{- if or (.Values.customLdifFiles) (.Values.customLdifCm) }}
             - name: custom-ldif-files
               mountPath: /ldifs/
-{{- end }}
-{{- range .Values.customFileSets }}
-{{- $fs := . }}
-{{- range .files }}
-            - name: {{ $fs.name }}
-              mountPath: {{ $fs.targetPath }}/{{ .filename }}
-              subPath: {{ .filename }}
-{{- end }}
 {{- end }}
 {{- if .Values.extraVolumeMounts }}
 {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
@@ -316,6 +312,10 @@ spec:
           secret:
             # could make the secret name variable
             secretName: dbildungs-iam-ldap-config-modify
+        - name: ldap-configuration-extra
+          configMap:
+            # could make the secret name variable
+            name: {{ template "openldap.fullname" $ }}-extraldif
         - name: cm-replication
           configMap:
             name: {{ template "openldap.fullname" . }}-replication
@@ -357,11 +357,6 @@ spec:
         - name: secret-certs
           emptyDir:
             medium: Memory
-{{- end }}
-{{- range .Values.customFileSets }}
-        - name: {{ .name }}
-          configMap:
-            name: {{ template "openldap.fullname" $ }}-fs-{{ .name }}
 {{- end }}
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}

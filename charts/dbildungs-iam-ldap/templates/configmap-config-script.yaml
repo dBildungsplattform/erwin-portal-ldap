@@ -21,27 +21,47 @@ data:
     ldapmodify -Y EXTERNAL -H ldapi:/// -f /ldap-configuration/modify/modify.ldif
     # no sure why this sleep is needed again - but it is
     sleep 10
-    /bin/bash /script/02.sh
+
+    # Loading Schemas
+    ucsmail_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*ucsMail)")
+    if (echo "$ucsmail_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for ucsMail Schema already exists. If you need to modify it, delete it and readd it."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/00-ucsmail.ldif
+    fi
+
+    # Adding Config Users from Secret
+    /bin/bash /script/02.sh /ldap-configuration/apply/apply.ldif true
+    # Adding other Configs from Configmap
+    /bin/bash /script/02.sh /ldap-configuration/extra/apply.ldif false
+    /bin/bash /script/02.sh /ldap-configuration/extra/modify.ldif true
+
+    
+
 
   # this script is needed so that Helm Chart is stable if persistence is enabled
   # it applies changes if they are new, but modifies them if they already exist
   02.sh: |  
-    LDIF_FILE="/ldap-configuration/apply/apply.ldif"
+    LDIF_FILE="$1"
+    OVERWRITE="${2:-false}"
 
-    # Function to process each entry
     process_entry() {
       local entry_dn="$1"
       local entry_ldif="$2"
 
       # Check if entry exists
-      ldapsearch -Y External -H ldapi:/// -b "$entry_dn" -s base -LLL dn > /dev/null 2>&1
+      ldapsearch -Y EXTERNAL -H ldapi:/// -b "$entry_dn" -s base -LLL dn > /dev/null 2>&1
 
       if [ $? -eq 0 ]; then
-        echo "Entry already exists: $entry_dn, updating entry by running ldapmodify"
-        echo "$entry_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y External -H ldapi:/// 
+        if [ "$OVERWRITE" = true ]; then
+          echo "Entry already exists: $entry_dn, updating entry by running ldapmodify"
+          echo "$entry_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:/// 
+        else
+          echo "Entry already exists: $entry_dn, skipping ldapmodify"
+        fi
       else
         echo "Entry does not exist, adding entry: $entry_dn"
-        echo "$entry_ldif" | ldapadd -Y External -H ldapi:/// 
+        echo "$entry_ldif" | ldapadd -Y EXTERNAL -H ldapi:/// 
       fi
     }
 

@@ -1,6 +1,6 @@
 #
 # A ConfigMap spec for openldap slapd that map directly to files under
-# /opt/bitnami/openldap/etc/schema/custom
+# /opt/bitnami/openldap/etc/schema/
 #
 {{- if .Values.customSchemaFiles }}
 apiVersion: v1

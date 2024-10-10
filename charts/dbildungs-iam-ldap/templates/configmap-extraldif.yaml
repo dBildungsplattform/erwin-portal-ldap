@@ -1,8 +1,8 @@
-{{- range .Values.customFileSets }}
+{{- if .Values.customExtraLdifFiles }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "openldap.fullname" $ }}-fs-{{ .name }}
+  name: {{ template "openldap.fullname" $ }}-extraldif
   labels:
     app: {{ template "openldap.name" $ }}
     chart: {{ template "openldap.chart" $ }}
@@ -12,9 +12,8 @@ metadata:
 {{ toYaml $.Values.extraLabels | indent 4 }}
 {{- end }}
 data:
-{{- range .files }}
-{{ .filename | indent 2}}: |
-{{ .content | indent 4 }}
-{{- end}}
----
+{{- range $key, $val := .Values.customExtraLdifFiles }}
+  {{ $key }}: |-
+{{ $val | indent 4}}
+{{- end }}
 {{- end }}
