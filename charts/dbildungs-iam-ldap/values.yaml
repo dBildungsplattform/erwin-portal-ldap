@@ -214,8 +214,8 @@ resources:
     cpu: 2
     memory: 4G
   requests:
-    cpu: 200m
-    memory: 200Mi
+    cpu: 100m
+    memory: 100Mi
 
 # enabling other features makes it so that ldap container fails with not enough permissions
 containerSecurityContext:
@@ -294,11 +294,11 @@ metrics:
       containerPort: 9330
   resources:
     limits:
-      cpu: 500m
-      memory: 1Gi
+      cpu: 300m
+      memory: 256Mi
     requests:
-      cpu: 200m
-      memory: 500Mi
+      cpu: 100m
+      memory: 64Mi
 
   service:
     type: ClusterIP
@@ -348,8 +348,8 @@ initTLSSecret:
       cpu: 500m
       memory: 500Mi
     requests:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 100m
+      memory: 100Mi
 
 volumePermissions:
   enabled: true
@@ -361,11 +361,11 @@ volumePermissions:
     command: [ 'sh', '-c', 'chmod -R g+rwX /bitnami' ]
   resources:
     limits:
-      cpu: 500m
-      memory: 500Mi
-    requests:
       cpu: 200m
       memory: 200Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
 
 sidecars: {}
 
