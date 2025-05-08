@@ -123,7 +123,7 @@ jobs:
     uses: dBildungsplattform/erwin-app-deploy/.github/workflows/deploy.yml@DBP-1438-deploy
     with:
       erwin_portal_server_branch: ${{ needs.branch_meta.outputs.ticket }}
-      schulportal_client_branch: ${{ needs.branch_meta.outputs.ticket }}
+      erwin_potal_branch: ${{ needs.branch_meta.outputs.ticket }}
       erwin_portal_keycloak_branch: ${{ needs.branch_meta.outputs.ticket }}
       erwin_portal_ldap_branch: ${{ needs.branch_meta.outputs.ticket }}
       namespace: ${{ needs.create_branch_identifier.outputs.namespace_from_branch }}
