@@ -1,5 +1,5 @@
 apiVersion: v2
-name: dbildungs-iam-ldap
+name: erwin-portal-ldap
 version: 0.0.1
 description: Helm Chart for using community developed OpenLDAP software
 appVersion: ""

@@ -6,7 +6,7 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+'
 
 concurrency:
-  group: dbildungs-iam-ldap-image-helm-chart
+  group: erwin-portal-ldap-image-helm-chart
   cancel-in-progress: true
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     uses: dBildungsplattform/dbp-github-workflows/.github/workflows/chart-release.yaml@7
     secrets: inherit
     with:
-      chart_name: "dbildungs-iam-ldap"
+      chart_name: "erwin-portal-ldap"
       helm_chart_version_generation: specified 
       image_tag_generation: specified 
       helm_chart_version: "${{ github.ref_name }}"
