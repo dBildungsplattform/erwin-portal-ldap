@@ -320,7 +320,7 @@ initSchema:
   image: 
     repository: debian
     tag: latest
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     pullSecrets: []
 
 ## initContainers:
@@ -354,9 +354,8 @@ initTLSSecret:
 volumePermissions:
   enabled: true
   image:
-    registry: docker.io
-    repository: bitnami/bitnami-shell
-    tag: 10-debian-10
+    repository: debian
+    tag: latest
     pullPolicy: IfNotPresent
     command: [ 'sh', '-c', 'chmod -R g+rwX /bitnami' ]
   resources:
