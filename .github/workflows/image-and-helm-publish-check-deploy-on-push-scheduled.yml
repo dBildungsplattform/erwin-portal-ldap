@@ -106,12 +106,13 @@ jobs:
     if: ${{ github.event_name == 'push' && !startsWith(github.ref_name,'dependabot/') }}
     uses: dBildungsplattform/erwin-app-deploy/.github/workflows/get-branch-meta.yml@DBP-1529-deploy-erwin-pipeline
 
-  create_branch_identifier:
-    if: ${{ github.event_name == 'push' && !startsWith(github.ref_name,'dependabot/') }}
-    needs: 
-      - branch_meta
-    uses: dBildungsplattform/erwin-app-deploy/.github/workflows/convert-branch-name.yml@DBP-1529-deploy-erwin-pipeline
-      branch: ${{ needs.branch_meta.outputs.branch }}
+create_branch_identifier:
+  if: ${{ github.event_name == 'push' && !startsWith(github.ref_name,'dependabot/') }}
+  needs: 
+    - branch_meta
+  uses: dBildungsplattform/erwin-app-deploy/.github/workflows/convert-branch-name.yml@DBP-1529-deploy-erwin-pipeline
+  with:
+    branch: ${{ needs.branch_meta.outputs.branch }}
 
   deploy:
     if: ${{ github.event_name == 'push' && !startsWith(github.ref_name,'dependabot/') }}
