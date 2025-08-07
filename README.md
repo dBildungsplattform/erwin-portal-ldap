@@ -12,7 +12,7 @@ To install the chart with the release name `my-release`:
 
 ```bash
 $ helm repo add dbildungsplattform https://dbildungsplattform.github.io/helm-charts-registry/
-$ helm install my-release dbildungsplattform/dbildungs-iam-ldap
+$ helm install my-release dbildungsplattform/erwin-portal-ldap
 ```
 
 
