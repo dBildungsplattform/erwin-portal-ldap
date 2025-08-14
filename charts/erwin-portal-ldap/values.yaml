@@ -22,7 +22,7 @@ fullnameOverride: ""
 # used extra secret var since you can not reference the global one
 existingSecret:
   enabled: true
-  name: dbildungs-iam-ldap
+  name: erwin-portal-ldap
 
 image:
   repository: bitnami/openldap
@@ -117,7 +117,7 @@ customSchemaFiles:
 # Custom openldap configuration files used to override default settings
 # can not get loaded if TLS is required ldap_bind: Confidentiality required (13) additional info: TLS confidentiality required
 # DO NOT FORGET to put the Root Organisation object as it won't be created while using customLdifFiles
-# Files that change the general config or create ACL are not allowed here, insufficient permissions, they get hendled via the dbildungs-iam-ldap-configuration secret
+# Files that change the general config or create ACL are not allowed here, insufficient permissions, they get hendled via the erwin-portal-ldap-configuration secret
 # Only considered once in the initial setup
 customLdifFiles:
   00-root.ldif: |-
