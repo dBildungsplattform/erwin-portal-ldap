@@ -120,7 +120,7 @@ jobs:
       - branch_meta
       - create_branch_identifier
       - wait_for_helm_chart_to_get_published
-    uses: dBildungsplattform/erwin-app-deploy/.github/workflows/deploy.yml@DBP-1586-DeployLdap
+    uses: dBildungsplattform/erwin-app-deploy/.github/workflows/deploy.yml@1
     with:
       erwin_portal_server_branch: ${{ needs.branch_meta.outputs.ticket }}
       erwin_portal_client_branch: ${{ needs.branch_meta.outputs.ticket }}
