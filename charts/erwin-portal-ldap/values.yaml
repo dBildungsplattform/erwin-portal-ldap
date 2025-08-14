@@ -127,7 +127,7 @@ customLdifFiles:
     objectClass: organization
     o: SPSH
 
-
+ 
 # First the apply.ldif gets applied if entry is not existend, then the entries in modify.ldif overwrite the entries
 customExtraLdifFiles: 
   apply.ldif: |-
