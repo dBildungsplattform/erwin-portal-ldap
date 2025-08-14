@@ -307,11 +307,11 @@ spec:
         - name: ldap-configuration-apply
           secret:
             # could make the secret name variable
-            secretName: dbildungs-iam-ldap-config-apply
+            secretName: erwin-portal-ldap-config-apply
         - name: ldap-configuration-modify
           secret:
             # could make the secret name variable
-            secretName: dbildungs-iam-ldap-config-modify
+            secretName: erwin-portal-ldap-config-modify
         - name: ldap-configuration-extra
           configMap:
             # could make the secret name variable
