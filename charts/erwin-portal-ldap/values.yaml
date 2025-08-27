@@ -25,7 +25,7 @@ existingSecret:
   name: erwin-portal-ldap
 
 image:
-  repository: bitnami/openldap
+  repository: bitnamilegacy/openldap
   tag: 2.6.6
   pullPolicy: Always
   pullSecrets: []
