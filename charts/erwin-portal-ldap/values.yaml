@@ -131,20 +131,7 @@ customLdifFiles:
 # First the apply.ldif gets applied if entry is not existend, then the entries in modify.ldif overwrite the entries
 customExtraLdifFiles: 
   apply.ldif: "ldifs/apply.ldif"
-
-  modify.ldif: |-
-    # Group members
-    dn: cn=lehrer,dc=schule-sh,dc=de
-    cn: lehrer
-    objectclass: groupOfUniqueNames
-    objectclass: top
-    uniquemember: cn=ssuperadmin,ou=oeffentlicheSchulen,dc=schule-sh,dc=de
-
-    dn: cn=schueler,dc=schule-sh,dc=de
-    cn: schueler
-    objectclass: groupOfUniqueNames
-    objectclass: top
-    uniquemember: cn=mmusterschueler,ou=oeffentlicheSchulen,dc=schule-sh,dc=de
+  modify.ldif: "ldifs/modify.ldif"
 
 replicaCount: 1
 
