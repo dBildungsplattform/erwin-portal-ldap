@@ -130,8 +130,7 @@ customLdifFiles:
  
 # First the apply.ldif gets applied if entry is not existend, then the entries in modify.ldif overwrite the entries
 customExtraLdifFiles: 
-  apply.ldif: |-
-    {{ .Files.Get "apply.ldif" }}
+  apply.ldif: "ldifs/apply.ldif"
 
   modify.ldif: |-
     # Group members
