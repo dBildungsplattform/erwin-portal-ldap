@@ -41,3 +41,145 @@ mailPrimaryAddress: susi.superadmin@schule-sh.de
 mailAlternativeAddress: susi.superadmin@schule-sh.de
 objectclass: top
 sn: Superadmin
+
+# join-backup, users, training.ucs
+dn: uid=join-backup,cn=users,dc=schule-sh,dc=de
+uid: join-backup
+objectClass: krb5KDCEntry
+objectClass: person
+objectClass: automount
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: organizationalPerson
+objectClass: univentionPWHistory
+objectClass: univentionMail
+objectClass: univentionObject
+objectClass: shadowAccount
+objectClass: sambaSamAccount
+objectClass: posixAccount
+sn: Joinuser
+entryUUID: c16eb2c2-88b9-103b-9168-6bd6e9f825ff
+
+# join-slave, users, training.ucs
+dn: uid=join-slave,cn=users,dc=schule-sh,dc=de
+uid: join-slave
+objectClass: krb5KDCEntry
+objectClass: person
+objectClass: automount
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: organizationalPerson
+objectClass: univentionPWHistory
+objectClass: univentionMail
+objectClass: univentionObject
+objectClass: shadowAccount
+objectClass: sambaSamAccount
+objectClass: posixAccount
+sn: Joinuser
+entryUUID: c18b1764-88b9-103b-917a-6bd6e9f825ff
+
+# Guest, users, training.ucs
+dn: uid=Guest,cn=users,dc=schule-sh,dc=de
+uid: Guest
+objectClass: krb5KDCEntry
+objectClass: person
+objectClass: automount
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: organizationalPerson
+objectClass: univentionPWHistory
+objectClass: univentionMail
+objectClass: univentionObject
+objectClass: shadowAccount
+objectClass: sambaSamAccount
+objectClass: posixAccount
+sn: none
+entryUUID: e64fc1fa-88c1-103b-9976-59f41573145d
+
+# krbtgt, users, training.ucs
+dn: uid=krbtgt,cn=users,dc=schule-sh,dc=de
+uid: krbtgt
+objectClass: krb5KDCEntry
+objectClass: person
+objectClass: automount
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: organizationalPerson
+objectClass: univentionPWHistory
+objectClass: univentionMail
+objectClass: univentionObject
+objectClass: shadowAccount
+objectClass: sambaSamAccount
+objectClass: posixAccount
+sn: none
+entryUUID: e6f5c834-88c1-103b-9987-59f41573145d
+
+# dns-dn1, users, training.ucs
+dn: uid=dns-dn1,cn=users,dc=schule-sh,dc=de
+uid: dns-dn1
+objectClass: krb5KDCEntry
+objectClass: person
+objectClass: automount
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: organizationalPerson
+objectClass: univentionPWHistory
+objectClass: univentionMail
+objectClass: univentionObject
+objectClass: shadowAccount
+objectClass: sambaSamAccount
+objectClass: posixAccount
+sn: Service
+entryUUID: 074f6536-88c2-103b-9bce-59f41573145d
+
+# petersilie, users, training.ucs
+dn: uid=petersilie,cn=users,dc=schule-sh,dc=de
+uid: petersilie
+sn: Silie
+givenName: Peter
+entryUUID: a013a3f2-cf46-103b-95e6-4b049df6c5ea
+objectClass: top
+objectClass: univentionObject
+objectClass: sambaSamAccount
+objectClass: posixAccount
+objectClass: univentionMail
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: shadowAccount
+objectClass: univentionPWHistory
+objectClass: univentionPerson
+objectClass: automount
+objectClass: krb5KDCEntry
+objectClass: person
+objectClass: oxUserObject
+objectClass: organizationalPerson
+
+# thomas.montag3, mitarbeiter, users, 100000, training.ucs
+dn: uid=thomas.montag3,cn=mitarbeiter,cn=users,ou=100000,dc=schule-sh,dc=de
+SchulCloudAdmin: FALSE
+uid: thomas.montag3
+objectClass: krb5KDCEntry
+objectClass: organizationalPerson
+objectClass: automount
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: krb5Principal
+objectClass: customerDbIds
+objectClass: person
+objectClass: univentionMail
+objectClass: univentionObject
+objectClass: ucsschoolType
+objectClass: univentionPWHistory
+objectClass: ucsschoolStaff
+objectClass: sambaSamAccount
+objectClass: posixAccount
+objectClass: shadowAccount
+mail: thomas.montag3@edu-dev.lsa.lvnbb.de
+sn: Montag
+givenName: Thomas
+entryUUID: d1db549a-5662-103c-9960-3533101281a6
