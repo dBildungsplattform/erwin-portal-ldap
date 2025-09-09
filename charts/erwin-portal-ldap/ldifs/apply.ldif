@@ -42,6 +42,10 @@ mailAlternativeAddress: susi.superadmin@schule-sh.de
 objectclass: top
 sn: Superadmin
 
+dn: cn=users,dc=schule-sh,dc=de
+cn: users
+objectclass: top
+
 dn: uid=Administrator,cn=users,dc=schule-sh,dc=de
 uid: Administrator
 sn: Administrator
