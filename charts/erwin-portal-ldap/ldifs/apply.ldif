@@ -41,27 +41,3 @@ mailPrimaryAddress: susi.superadmin@schule-sh.de
 mailAlternativeAddress: susi.superadmin@schule-sh.de
 objectclass: top
 sn: Superadmin
-
-dn: cn=users,dc=schule-sh,dc=de
-cn: users
-objectclass: top
-
-dn: uid=Administrator,cn=users,dc=schule-sh,dc=de
-uid: Administrator
-sn: Administrator
-entryUUID: b5ef66a8-88b9-103b-90c2-6bd6e9f825ff
-objectClass: krb5KDCEntry
-objectClass: univentionPerson
-objectClass: person
-objectClass: automount
-objectClass: top
-objectClass: inetOrgPerson
-objectClass: krb5Principal
-objectClass: organizationalPerson
-objectClass: univentionPWHistory
-objectClass: univentionMail
-objectClass: univentionObject
-objectClass: shadowAccount
-objectClass: sambaSamAccount
-objectClass: univentionPolicyReference
-objectClass: posixAccount
