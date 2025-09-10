@@ -1,12 +1,355 @@
-# Group members
-dn: cn=lehrer,dc=schule-sh,dc=de
-cn: lehrer
-objectclass: groupOfUniqueNames
-objectclass: top
-uniquemember: cn=ssuperadmin,ou=oeffentlicheSchulen,dc=schule-sh,dc=de
+dn: dc=de,dc=schule-sh,dc=de
+changetype: add
+dc: de
+objectClass: top
+objectClass: domain
 
-dn: cn=schueler,dc=schule-sh,dc=de
-cn: schueler
-objectclass: groupOfUniqueNames
-objectclass: top
-uniquemember: cn=mmusterschueler,ou=oeffentlicheSchulen,dc=schule-sh,dc=de
+dn: o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organization
+o: school0
+
+dn: ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=roles,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: roles
+
+dn: ou=groups,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: uid=laura.ldapkowski.123456,ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: laura.ldapkowski.123456
+givenName: Laura
+sn: Ldapkowski
+uidNumber: 123456
+gidNumber: 123456
+homeDirectory: /home/laura.ldapkowski.123456/
+uid: laura.ldapkowski.123456
+mail: laura.ldapkowski.123456@example.org
+uuid: 7ad7a2aa-907b-4a9c-91ab-5c8f08090277
+userPassword: Schulcloud1!
+
+dn: uid=kim.wisozk.2,ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: kim.wisozk.2
+givenName: Kim
+sn: Wisozk
+uidNumber: 2
+gidNumber: 2
+homeDirectory: /home/kim.wisozk.2/
+uid: kim.wisozk.2
+mail: kim.wisozk.2@example.org
+uuid: 70cceeeb-c1aa-44b6-abb6-dfb32784b285
+userPassword: Schulcloud1!
+
+dn: uid=zoe.emmerich.3,ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: zoe.emmerich.3
+givenName: Zoe
+sn: Emmerich
+uidNumber: 3
+gidNumber: 3
+homeDirectory: /home/zoe.emmerich.3/
+uid: zoe.emmerich.3
+mail: zoe.emmerich.3@example.org
+uuid: a81775f3-01e7-428b-b13c-f8f0886fd312
+userPassword: Schulcloud1!
+
+dn: uid=brant.labadie.4,ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: brant.labadie.4
+givenName: Brant
+sn: Labadie
+uidNumber: 4
+gidNumber: 4
+homeDirectory: /home/brant.labadie.4/
+uid: brant.labadie.4
+mail: brant.labadie.4@example.org
+uuid: 61dfaed2-c7f7-425e-8c67-803e99f7ab8e
+userPassword: Schulcloud1!
+
+dn: uid=lawson.bernier.5,ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: lawson.bernier.5
+givenName: Lawson
+sn: Bernier
+uidNumber: 5
+gidNumber: 5
+homeDirectory: /home/lawson.bernier.5/
+uid: lawson.bernier.5
+mail: lawson.bernier.5@example.org
+uuid: 7e21114d-f2b1-4e0b-aa36-2908fad1c3f4
+userPassword: Schulcloud1!
+
+dn: uid=garfield.simonis.6,ou=users,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: garfield.simonis.6
+givenName: Garfield
+sn: Simonis
+uidNumber: 6
+gidNumber: 6
+homeDirectory: /home/garfield.simonis.6/
+uid: garfield.simonis.6
+mail: garfield.simonis.6@example.org
+uuid: 72666fd4-cd99-4948-8bf9-8c3ccdf0a0a1
+userPassword: Schulcloud1!
+
+dn: cn=ROLE_SUBSTITUTE_TEACHER,ou=roles,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: ROLE_SUBSTITUTE_TEACHER
+cn: ROLE_SUBSTITUTE_TEACHER
+member: uid=kim.wisozk.2, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+
+dn: cn=ROLE_STUDENT,ou=roles,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: ROLE_STUDENT
+cn: ROLE_STUDENT
+member: uid=laura.ldapkowski.123456, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=zoe.emmerich.3, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=brant.labadie.4, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=lawson.bernier.5, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=garfield.simonis.6, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+
+dn: cn=Function-basedinteractiveflexibility,ou=groups,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: Function-based interactive flexibility
+cn: Function-based interactive flexibility
+member: uid=garfield.simonis.6, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=brant.labadie.4, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=lawson.bernier.5, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=zoe.emmerich.3, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=laura.ldapkowski.123456, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+
+dn: cn=Team-orienteduser-facinginterface,ou=groups,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: Team-oriented user-facing interface
+cn: Team-oriented user-facing interface
+member: uid=laura.ldapkowski.123456, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=brant.labadie.4, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=zoe.emmerich.3, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=garfield.simonis.6, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=lawson.bernier.5, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+
+dn: cn=Distributedwell-modulatedapplication,ou=groups,o=school0,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: Distributed well-modulated application
+cn: Distributed well-modulated application
+member: uid=lawson.bernier.5, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=brant.labadie.4, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=zoe.emmerich.3, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=garfield.simonis.6, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+member: uid=laura.ldapkowski.123456, ou=users, o=school0, dc=de, dc=schule-sh, dc=de
+
+dn: o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organization
+o: school1
+
+dn: ou=users,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=roles,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: roles
+
+dn: ou=groups,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+dn: uid=darryl.beatty.7,ou=users,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: darryl.beatty.7
+givenName: Darryl
+sn: Beatty
+uidNumber: 7
+gidNumber: 7
+homeDirectory: /home/darryl.beatty.7/
+uid: darryl.beatty.7
+mail: darryl.beatty.7@example.org
+uuid: 52d65763-5930-4e0b-9894-ea7648d788b9
+userPassword: Schulcloud1!
+
+dn: uid=cydney.kohler.8,ou=users,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: cydney.kohler.8
+givenName: Cydney
+sn: Kohler
+uidNumber: 8
+gidNumber: 8
+homeDirectory: /home/cydney.kohler.8/
+uid: cydney.kohler.8
+mail: cydney.kohler.8@example.org
+uuid: 6d69127a-6e79-4bd4-b0a6-89445fdd3766
+userPassword: Schulcloud1!
+
+dn: uid=betty.johnston.9,ou=users,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: betty.johnston.9
+givenName: Betty
+sn: Johnston
+uidNumber: 9
+gidNumber: 9
+homeDirectory: /home/betty.johnston.9/
+uid: betty.johnston.9
+mail: betty.johnston.9@example.org
+uuid: 930f783e-48d3-4875-b8f3-67eedc7ad427
+userPassword: Schulcloud1!
+
+dn: uid=karen.bashirian.10,ou=users,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: karen.bashirian.10
+givenName: Karen
+sn: Bashirian
+uidNumber: 10
+gidNumber: 10
+homeDirectory: /home/karen.bashirian.10/
+uid: karen.bashirian.10
+mail: karen.bashirian.10@example.org
+uuid: 1d5021a3-6083-4d1e-bdba-72ef162e2039
+userPassword: Schulcloud1!
+
+dn: uid=leila.barton.11,ou=users,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: uuidObject
+cn: leila.barton.11
+givenName: Leila
+sn: Barton
+uidNumber: 11
+gidNumber: 11
+homeDirectory: /home/leila.barton.11/
+uid: leila.barton.11
+mail: leila.barton.11@example.org
+uuid: b737c57a-d4bc-4c7f-943d-a3c86ce8c7f9
+userPassword: Schulcloud1!
+
+dn: cn=ROLE_STUDENT,ou=roles,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: ROLE_STUDENT
+cn: ROLE_STUDENT
+member: uid=darryl.beatty.7, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=cydney.kohler.8, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=betty.johnston.9, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=karen.bashirian.10, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=leila.barton.11, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+
+dn: cn=Digitized6thgenerationmethodology,ou=groups,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: Digitized 6th generation methodology
+cn: Digitized 6th generation methodology
+member: uid=betty.johnston.9, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=leila.barton.11, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=cydney.kohler.8, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=karen.bashirian.10, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=darryl.beatty.7, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+
+dn: cn=Re-contextualizedgrid-enabledportal,ou=groups,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: Re-contextualized grid-enabled portal
+cn: Re-contextualized grid-enabled portal
+member: uid=karen.bashirian.10, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=darryl.beatty.7, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=betty.johnston.9, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=leila.barton.11, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+
+dn: cn=Centralizedfull-rangeknowledgeuser,ou=groups,o=school1,dc=de,dc=schule-sh,dc=de
+changetype: add
+objectClass: top
+objectClass: groupOfNames
+description: Centralized full-range knowledge user
+cn: Centralized full-range knowledge user
+member: uid=darryl.beatty.7, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=karen.bashirian.10, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=betty.johnston.9, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=cydney.kohler.8, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+member: uid=leila.barton.11, ou=users, o=school1, dc=de, dc=schule-sh, dc=de
+
