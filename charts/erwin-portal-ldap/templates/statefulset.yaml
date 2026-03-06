@@ -307,11 +307,11 @@ spec:
         - name: ldap-configuration-apply
           secret:
             # could make the secret name variable
-            secretName: erwin-portal-ldap-config-apply
+            secretName: {{ template "openldap.fullname" $ }}-config-apply
         - name: ldap-configuration-modify
           secret:
             # could make the secret name variable
-            secretName: erwin-portal-ldap-config-modify
+            secretName: {{ template "openldap.fullname" $ }}-config-modify
         - name: ldap-configuration-extra
           configMap:
             # could make the secret name variable
