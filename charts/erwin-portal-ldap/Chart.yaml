@@ -1,6 +1,6 @@
 apiVersion: v2
 name: erwin-portal-ldap
-version: 0.0.1
+version: 0.1.0
 description: Helm Chart for using community developed OpenLDAP software
 appVersion: ""
 dependencies:
