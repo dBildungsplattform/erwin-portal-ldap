@@ -285,6 +285,11 @@ spec:
             - name: custom-ldif-files
               mountPath: /ldifs/
 {{- end }}
+{{- if .Values.seedData.enabled }}
+            - name: ldap-seed-data
+              mountPath: /ldap-seed-data
+              readOnly: true
+{{- end }}
 {{- if .Values.extraVolumeMounts }}
 {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
 {{- end }}
@@ -337,6 +342,14 @@ spec:
         - name: custom-ldif-files
           emptyDir:
             medium: Memory
+{{- end }}
+{{- if .Values.seedData.enabled }}
+        - name: ldap-seed-data
+          secret:
+            secretName: {{ .Values.seedData.secretName }}
+            items:
+              - key: {{ .Values.seedData.secretKey }}
+                path: data.ldif
 {{- end }}
 {{- if .Values.customSchemaFiles }}
         - name: cm-custom-schema-files

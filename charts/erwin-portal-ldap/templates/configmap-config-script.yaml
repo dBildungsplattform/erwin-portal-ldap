@@ -36,6 +36,15 @@ data:
     /bin/bash /script/02.sh /ldap-configuration/extra/apply.ldif false
     /bin/bash /script/02.sh /ldap-configuration/extra/modify.ldif true
 
+    # Apply seed data from 1Password secret (if exists)
+    if [ -f /ldap-seed-data/data.ldif ]; then
+      echo "Applying LDAP seed data from secret..."
+      /bin/bash /script/02.sh /ldap-seed-data/data.ldif true
+      echo "LDAP seed data applied successfully."
+    else
+      echo "No seed data file found at /ldap-seed-data/data.ldif, skipping seed data population."
+    fi
+
     
 
 
