@@ -348,7 +348,7 @@ spec:
           secret:
             secretName: {{ .Values.seedData.secretName }}
             items:
-              - key: {{ .Values.seedData.secretKey }}
+              - key: {{ .Values.seedData.ldifFileName }}
                 path: data.ldif
 {{- end }}
 {{- if .Values.customSchemaFiles }}
