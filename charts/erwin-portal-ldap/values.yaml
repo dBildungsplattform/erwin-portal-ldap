@@ -176,7 +176,7 @@ seedData:
   # Name of the secret containing LDIF data (created from 1Password)
   secretName: erwin-ldap-seed-data
   # Name of the LDIF file in the secret
-  ldifFileName: univention_users.ldif
+  ldifFileName: univention_users_0_9MB.ldif
 
 # will have to work on this
 replication:
