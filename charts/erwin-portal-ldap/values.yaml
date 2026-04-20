@@ -74,7 +74,7 @@ env:
   LDAP_ULIMIT_NOFILES: "1024" # staging and prod: 4096
   # if something is not needed it can get removed by just not mentioning it here # order is importand, do not put nis in front, always append it
   # is this is enabled replication is not working
-  LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis
+  LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis,ucsschool
 
   # Security
   LDAP_ENABLE_TLS: "yes" 
@@ -97,7 +97,35 @@ pdb:
 # Note that the supplied files are sorted by name and inserted into 'LDAP_EXTRA_SCHEMAS' env var
 # after chart default schemas, allowing you to control the loading sequence.
 customSchemaFiles:
-  00-ucsmail.ldif: |-
+  02-univention-base.ldif: |-
+    dn: cn=univentionBase,cn=schema,cn=config
+    objectClass: olcSchemaConfig
+    cn: univentionBase
+    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1000.1.1 NAME 'univentionObjectIdentifier' DESC 'unique identifier' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.1000.2.1 NAME 'univentionObject' DESC 'Univention Object' SUP top AUXILIARY MAY ( univentionObjectIdentifier ) )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.1000.2.2 NAME 'univentionPWHistory' DESC 'Univention Password History' SUP top AUXILIARY )
+
+  03-samba.ldif: |-
+    dn: cn=samba,cn=schema,cn=config
+    objectClass: olcSchemaConfig
+    cn: samba
+    olcAttributeTypes: ( 1.3.6.1.4.1.7165.2.1.24 NAME 'sambaSID' DESC 'Security ID' EQUALITY caseIgnoreIA5Match SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{64} SINGLE-VALUE )
+    olcObjectClasses: ( 1.3.6.1.4.1.7165.2.2.6 NAME 'sambaSamAccount' DESC 'Samba Sam Account' SUP top AUXILIARY MAY ( sambaSID ) )
+
+  04-customerdb.ldif: |-
+    dn: cn=customerDb,cn=schema,cn=config
+    objectClass: olcSchemaConfig
+    cn: customerDb
+    olcAttributeTypes: ( 1.3.6.1.4.1.10176.5000.1.1 NAME 'customerDbId' DESC 'Customer Database ID' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.5000.2.1 NAME 'customerDbIds' DESC 'Customer Database IDs' SUP top AUXILIARY MAY ( customerDbId ) )
+
+  05-oxuser.ldif: |-
+    dn: cn=oxUser,cn=schema,cn=config
+    objectClass: olcSchemaConfig
+    cn: oxUser
+    olcObjectClasses: ( 1.3.6.1.4.1.48710.1.4.101 NAME 'oxUserObject' DESC 'Gluu User Object' SUP top AUXILIARY )
+
+  06-ucsmail.ldif: |-
     dn: cn=ucsMail,cn=schema,cn=config
     objectClass: olcSchemaConfig
     cn: ucsMail
@@ -110,21 +138,15 @@ customSchemaFiles:
     olcAttributeTypes: ( 1.3.6.1.4.1.10176.1010.1.92 NAME 'univentionMailUserQuota' DESC 'Mailbox hard quota limit in MB' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
     olcObjectClasses: ( 1.3.6.1.4.1.10176.1010.2.1 NAME 'univentionMail' DESC 'Univention Mail Preferences' SUP top AUXILIARY MUST uid MAY ( univentionMailHomeServer $ mailPrimaryAddress $ mailAlternativeAddress $ mailGlobalSpamFolder $ univentionMailUserQuota $ mailForwardAddress $ mailForwardCopyToSelf ) )
 
-  01-ucsschool.ldif: |-
+  07-ucsschool.ldif: |-
+    # Extended schema for SchulCloudAdmin and UCS school types
     dn: cn=ucsschool,cn=schema,cn=config
     objectClass: olcSchemaConfig
     cn: ucsschool
     olcAttributeTypes: ( 1.3.6.1.4.1.10176.4200.1.1 NAME 'SchulCloudAdmin' DESC 'Flag indicating school cloud admin status' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.4200.1.2 NAME 'ucsschoolSchool' DESC 'School identifier' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.4200.1.3 NAME 'ucsschoolRole' DESC 'Role in school context' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.4200.1.4 NAME 'ucsschoolSourceUID' DESC 'Source UID for school user' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.4200.1.5 NAME 'ucsschoolRecordUID' DESC 'Record UID for school user' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
-    olcAttributeTypes: ( 1.3.6.1.4.1.10176.4200.1.6 NAME 'customerDbIds' DESC 'Customer database IDs' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
-    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.1 NAME 'ucsschoolType' DESC 'UCS School Type' SUP top AUXILIARY MAY ( ucsschoolSchool $ ucsschoolRole $ ucsschoolSourceUID $ ucsschoolRecordUID $ SchulCloudAdmin ) )
-    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.2 NAME 'ucsschoolStaff' DESC 'UCS School Staff Member' SUP top AUXILIARY MAY ( ucsschoolSchool $ ucsschoolRole $ SchulCloudAdmin ) )
-    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.3 NAME 'ucsschoolTeacher' DESC 'UCS School Teacher' SUP top AUXILIARY MAY ( ucsschoolSchool $ ucsschoolRole $ SchulCloudAdmin ) )
-    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.4 NAME 'ucsschoolStudent' DESC 'UCS School Student' SUP top AUXILIARY MAY ( ucsschoolSchool $ ucsschoolRole $ SchulCloudAdmin ) )
-    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.5 NAME 'customerDbIds' DESC 'Customer Database IDs' SUP top AUXILIARY MAY customerDbIds ) 
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.1 NAME 'ucsschoolType' DESC 'UCS School Type' SUP top AUXILIARY MAY ( SchulCloudAdmin ) )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.2 NAME 'ucsschoolStudent' DESC 'UCS School Student' SUP top AUXILIARY )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.3 NAME 'ucsschoolStaff' DESC 'UCS School Staff' SUP top AUXILIARY )
 
 
 # Custom openldap configuration files used to override default settings
@@ -218,6 +240,32 @@ customLdifFiles:
     cn: lehrer
 
     dn: cn=schueler,cn=users,ou=100002,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: schueler
+
+    # Add missing organizational units for 100481
+    dn: ou=100481,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalUnit
+    ou: 100481
+
+    dn: cn=users,ou=100481,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: users
+
+    dn: cn=mitarbeiter,cn=users,ou=100481,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: mitarbeiter
+
+    dn: cn=lehrer,cn=users,ou=100481,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: lehrer
+
+    dn: cn=schueler,cn=users,ou=100481,dc=training,dc=ucs
     objectClass: top
     objectClass: organizationalRole
     cn: schueler

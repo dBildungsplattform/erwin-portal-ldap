@@ -22,12 +22,53 @@ data:
     # no sure why this sleep is needed again - but it is
     sleep 10
 
-    # Loading Schemas
+    # Loading Schemas in order
+    # Load univention base schema first
+    univention_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*univentionBase)")
+    if (echo "$univention_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for univentionBase Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/02-univention-base.ldif
+    fi
+
+    # Load samba schema
+    samba_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*samba)")
+    if (echo "$samba_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for samba Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03-samba.ldif
+    fi
+
+    # Load customerdb schema
+    customerdb_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*customerDb)")
+    if (echo "$customerdb_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for customerDb Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/04-customerdb.ldif
+    fi
+
+    # Load ox user schema
+    oxuser_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*oxUser)")
+    if (echo "$oxuser_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for oxUser Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/05-oxuser.ldif
+    fi
+
+    # Load ucsmail schema
     ucsmail_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*ucsMail)")
     if (echo "$ucsmail_search_output" | grep -q "numEntries: 1"); then
       echo "Entry for ucsMail Schema already exists. If you need to modify it, delete it and readd it."
     else
-      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/00-ucsmail.ldif
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/06-ucsmail.ldif
+    fi
+
+    # Load ucsschool schema last (depends on others)
+    ucsschool_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*ucsschool)")
+    if (echo "$ucsschool_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for ucsschool Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/07-ucsschool.ldif
     fi
 
     # Adding Config Users from Secret
