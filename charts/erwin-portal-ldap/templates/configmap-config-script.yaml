@@ -79,13 +79,13 @@ data:
     if [ "$base_check" -eq 0 ]; then
       echo "Creating base directory structure..."
       cat <<EOF | ldapadd -Y EXTERNAL -H ldapi:///
-    dn: dc=training,dc=ucs
-    objectClass: top
-    objectClass: dcObject
-    objectClass: organization
-    dc: training
-    o: Training UCS
-    EOF
+dn: dc=training,dc=ucs
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+dc: training
+o: Training UCS
+EOF
     fi
 
     # Check if cn=users,dc=training,dc=ucs exists
@@ -93,11 +93,11 @@ data:
     if [ "$users_check" -eq 0 ]; then
       echo "Creating cn=users,dc=training,dc=ucs..."
       cat <<EOF | ldapadd -Y EXTERNAL -H ldapi:///
-    dn: cn=users,dc=training,dc=ucs
-    objectClass: top
-    objectClass: organizationalRole
-    cn: users
-    EOF
+dn: cn=users,dc=training,dc=ucs
+objectClass: top
+objectClass: organizationalRole
+cn: users
+EOF
     fi
 
     # Check if ou=groups,dc=training,dc=ucs exists
@@ -105,11 +105,11 @@ data:
     if [ "$groups_check" -eq 0 ]; then
       echo "Creating ou=groups,dc=training,dc=ucs..."
       cat <<EOF | ldapadd -Y EXTERNAL -H ldapi:///
-    dn: ou=groups,dc=training,dc=ucs
-    objectClass: top
-    objectClass: organizationalUnit
-    ou: groups
-    EOF
+dn: ou=groups,dc=training,dc=ucs
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+EOF
     fi
 
     # Adding Config Users from Secret
@@ -173,6 +173,12 @@ data:
             # Accumulate the current entry
             current_entry="$current_entry"$'\n'"$line"
         fi
+    done < "$LDIF_FILE"
+
+    # Process the last entry in the file
+    if [[ -n "$current_dn" ]]; then
+      process_entry "$current_dn" "$current_entry"
+    fi
     done < "$LDIF_FILE"
 
     # Process the last entry in the file
