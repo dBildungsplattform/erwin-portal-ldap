@@ -52,7 +52,7 @@ spec:
          - name: LDAP_ADDR
            value: "{{ template "openldap.fullname" . }}-0.{{ template "openldap.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local:1389"
          - name: LDAP_USER
-           value: uid=monitoring_user,ou=users,dc=schule-sh,dc=de
+           value: uid=monitoring_user,cn=users,{{ include "global.baseDomain" . }}
          - name: INTERVAL
            value: 10s
          - name: LDAP_PASS
