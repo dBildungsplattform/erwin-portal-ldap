@@ -74,7 +74,7 @@ env:
   LDAP_ULIMIT_NOFILES: "1024" # staging and prod: 4096
   # if something is not needed it can get removed by just not mentioning it here # order is importand, do not put nis in front, always append it
   # is this is enabled replication is not working
-  # LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis
+  LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis
 
   # Security
   LDAP_ENABLE_TLS: "yes" 
@@ -122,41 +122,92 @@ customSchemaFiles:
 customLdifFiles:
   00-root.ldif: |-
     dn: dc=training,dc=ucs
-    dc: training
+    objectClass: top
     objectClass: dcObject
     objectClass: organization
+    dc: training
     o: Training UCS
 
   01-tree.ldif: |-
     dn: cn=users,dc=training,dc=ucs
-    cn: users
-    objectClass: organizationalRole
     objectClass: top
+    objectClass: organizationalRole
+    cn: users
 
     dn: ou=100000,dc=training,dc=ucs
-    ou: 100000
-    objectClass: organizationalUnit
     objectClass: top
+    objectClass: organizationalUnit
+    ou: 100000
 
     dn: cn=users,ou=100000,dc=training,dc=ucs
-    cn: users
-    objectClass: organizationalRole
     objectClass: top
+    objectClass: organizationalRole
+    cn: users
 
     dn: cn=mitarbeiter,cn=users,ou=100000,dc=training,dc=ucs
-    cn: mitarbeiter
-    objectClass: organizationalRole
     objectClass: top
+    objectClass: organizationalRole
+    cn: mitarbeiter
 
     dn: cn=lehrer,cn=users,ou=100000,dc=training,dc=ucs
-    cn: lehrer
-    objectClass: organizationalRole
     objectClass: top
+    objectClass: organizationalRole
+    cn: lehrer
 
     dn: cn=schueler,cn=users,ou=100000,dc=training,dc=ucs
-    cn: schueler
-    objectClass: organizationalRole
     objectClass: top
+    objectClass: organizationalRole
+    cn: schueler
+
+    dn: ou=100001,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalUnit
+    ou: 100001
+
+    dn: cn=users,ou=100001,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: users
+
+    dn: cn=mitarbeiter,cn=users,ou=100001,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: mitarbeiter
+
+    dn: cn=lehrer,cn=users,ou=100001,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: lehrer
+
+    dn: cn=schueler,cn=users,ou=100001,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: schueler
+
+    dn: ou=100002,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalUnit
+    ou: 100002
+
+    dn: cn=users,ou=100002,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: users
+
+    dn: cn=mitarbeiter,cn=users,ou=100002,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: mitarbeiter
+
+    dn: cn=lehrer,cn=users,ou=100002,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: lehrer
+
+    dn: cn=schueler,cn=users,ou=100002,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: schueler
 
 # Extra LDIF files applied after initial setup (currently empty - seed data comes from 1Password)
 customExtraLdifFiles:
