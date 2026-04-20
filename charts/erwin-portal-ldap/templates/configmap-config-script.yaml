@@ -71,6 +71,47 @@ data:
       ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/07-ucsschool.ldif
     fi
 
+    # Ensure base directory structure exists before adding users/groups
+    echo "Checking and creating base directory structure..."
+    
+    # Check if base training.ucs exists
+    base_check=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "dc=training,dc=ucs" -s base -LLL dn 2>/dev/null | wc -l)
+    if [ "$base_check" -eq 0 ]; then
+      echo "Creating base directory structure..."
+      cat <<EOF | ldapadd -Y EXTERNAL -H ldapi:///
+    dn: dc=training,dc=ucs
+    objectClass: top
+    objectClass: dcObject
+    objectClass: organization
+    dc: training
+    o: Training UCS
+    EOF
+    fi
+
+    # Check if cn=users,dc=training,dc=ucs exists
+    users_check=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=users,dc=training,dc=ucs" -s base -LLL dn 2>/dev/null | wc -l)
+    if [ "$users_check" -eq 0 ]; then
+      echo "Creating cn=users,dc=training,dc=ucs..."
+      cat <<EOF | ldapadd -Y EXTERNAL -H ldapi:///
+    dn: cn=users,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalRole
+    cn: users
+    EOF
+    fi
+
+    # Check if ou=groups,dc=training,dc=ucs exists
+    groups_check=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "ou=groups,dc=training,dc=ucs" -s base -LLL dn 2>/dev/null | wc -l)
+    if [ "$groups_check" -eq 0 ]; then
+      echo "Creating ou=groups,dc=training,dc=ucs..."
+      cat <<EOF | ldapadd -Y EXTERNAL -H ldapi:///
+    dn: ou=groups,dc=training,dc=ucs
+    objectClass: top
+    objectClass: organizationalUnit
+    ou: groups
+    EOF
+    fi
+
     # Adding Config Users from Secret
     /bin/bash /script/02.sh /ldap-configuration/apply/apply.ldif true
     # Adding other Configs from Configmap
@@ -86,12 +127,10 @@ data:
       echo "No seed data file found at /ldap-seed-data/data.ldif, skipping seed data population."
     fi
 
-    
-
 
   # this script is needed so that Helm Chart is stable if persistence is enabled
   # it applies changes if they are new, but modifies them if they already exist
-  02.sh: |  
+  02.sh: |
     LDIF_FILE="$1"
     OVERWRITE="${2:-false}"
 
@@ -105,13 +144,13 @@ data:
       if [ $? -eq 0 ]; then
         if [ "$OVERWRITE" = true ]; then
           echo "Entry already exists: $entry_dn, updating entry by running ldapmodify"
-          echo "$entry_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:/// 
+          echo "$entry_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:///
         else
           echo "Entry already exists: $entry_dn, skipping ldapmodify"
         fi
       else
         echo "Entry does not exist, adding entry: $entry_dn"
-        echo "$entry_ldif" | ldapadd -Y EXTERNAL -H ldapi:/// 
+        echo "$entry_ldif" | ldapadd -Y EXTERNAL -H ldapi:///
       fi
     }
 
