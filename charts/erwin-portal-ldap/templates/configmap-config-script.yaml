@@ -71,6 +71,47 @@ data:
       ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/07-ucsschool.ldif
     fi
 
+    # Ensure base directory structure exists before adding users/groups
+    echo "Ensuring base directory structure exists..."
+
+    # Create base dc=training,dc=ucs if it doesn't exist
+    if ! ldapsearch -Y EXTERNAL -H ldapi:/// -b "dc=training,dc=ucs" -s base "(objectClass=*)" dn 2>/dev/null | grep -q "^dn:"; then
+      echo "Creating dc=training,dc=ucs..."
+      printf '%s\n' \
+        "dn: dc=training,dc=ucs" \
+        "objectClass: top" \
+        "objectClass: dcObject" \
+        "objectClass: organization" \
+        "dc: training" \
+        "o: Training UCS" | ldapadd -Y EXTERNAL -H ldapi:///
+    else
+      echo "dc=training,dc=ucs already exists."
+    fi
+
+    # Create cn=users,dc=training,dc=ucs if it doesn't exist
+    if ! ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=users,dc=training,dc=ucs" -s base "(objectClass=*)" dn 2>/dev/null | grep -q "^dn:"; then
+      echo "Creating cn=users,dc=training,dc=ucs..."
+      printf '%s\n' \
+        "dn: cn=users,dc=training,dc=ucs" \
+        "objectClass: top" \
+        "objectClass: organizationalRole" \
+        "cn: users" | ldapadd -Y EXTERNAL -H ldapi:///
+    else
+      echo "cn=users,dc=training,dc=ucs already exists."
+    fi
+
+    # Create ou=groups,dc=training,dc=ucs if it doesn't exist
+    if ! ldapsearch -Y EXTERNAL -H ldapi:/// -b "ou=groups,dc=training,dc=ucs" -s base "(objectClass=*)" dn 2>/dev/null | grep -q "^dn:"; then
+      echo "Creating ou=groups,dc=training,dc=ucs..."
+      printf '%s\n' \
+        "dn: ou=groups,dc=training,dc=ucs" \
+        "objectClass: top" \
+        "objectClass: organizationalUnit" \
+        "ou: groups" | ldapadd -Y EXTERNAL -H ldapi:///
+    else
+      echo "ou=groups,dc=training,dc=ucs already exists."
+    fi
+
     # Adding Config Users from Secret
     /bin/bash /script/02.sh /ldap-configuration/apply/apply.ldif true
     # Adding other Configs from Configmap
