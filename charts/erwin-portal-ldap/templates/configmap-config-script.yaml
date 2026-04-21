@@ -39,6 +39,22 @@ data:
       ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03-samba.ldif
     fi
 
+    # Load krb5 schema (for Kerberos support)
+    krb5_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*krb5)")
+    if (echo "$krb5_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for krb5 Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03a-krb5.ldif
+    fi
+
+    # Load automount schema
+    automount_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*automount)")
+    if (echo "$automount_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for automount Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03b-automount.ldif
+    fi
+
     # Load customerdb schema
     customerdb_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*customerDb)")
     if (echo "$customerdb_search_output" | grep -q "numEntries: 1"); then

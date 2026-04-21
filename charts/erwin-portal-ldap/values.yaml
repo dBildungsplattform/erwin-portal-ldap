@@ -102,8 +102,11 @@ customSchemaFiles:
     objectClass: olcSchemaConfig
     cn: univentionBase
     olcAttributeTypes: ( 1.3.6.1.4.1.10176.1000.1.1 NAME 'univentionObjectIdentifier' DESC 'unique identifier' EQUALITY caseIgnoreMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )
+    olcAttributeTypes: ( 1.3.6.1.4.1.10176.1000.1.2 NAME 'univentionPolicyReference' DESC 'Reference to a policy' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
     olcObjectClasses: ( 1.3.6.1.4.1.10176.1000.2.1 NAME 'univentionObject' DESC 'Univention Object' SUP top AUXILIARY MAY ( univentionObjectIdentifier ) )
     olcObjectClasses: ( 1.3.6.1.4.1.10176.1000.2.2 NAME 'univentionPWHistory' DESC 'Univention Password History' SUP top AUXILIARY )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.1000.2.3 NAME 'univentionPerson' DESC 'Univention Person' SUP top AUXILIARY )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.1000.2.4 NAME 'univentionPolicyReference' DESC 'Univention Policy Reference' SUP top AUXILIARY MAY ( univentionPolicyReference ) )
 
   03-samba.ldif: |-
     dn: cn=samba,cn=schema,cn=config
@@ -111,6 +114,22 @@ customSchemaFiles:
     cn: samba
     olcAttributeTypes: ( 1.3.6.1.4.1.7165.2.1.24 NAME 'sambaSID' DESC 'Security ID' EQUALITY caseIgnoreIA5Match SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{64} SINGLE-VALUE )
     olcObjectClasses: ( 1.3.6.1.4.1.7165.2.2.6 NAME 'sambaSamAccount' DESC 'Samba Sam Account' SUP top AUXILIARY MAY ( sambaSID ) )
+
+  03a-krb5.ldif: |-
+    dn: cn=krb5,cn=schema,cn=config
+    objectClass: olcSchemaConfig
+    cn: krb5
+    olcAttributeTypes: ( 1.3.6.1.4.1.5322.10.1.1 NAME 'krb5PrincipalName' DESC 'Kerberos principal name' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+    olcAttributeTypes: ( 1.3.6.1.4.1.5322.10.1.2 NAME 'krb5KeyVersionNumber' DESC 'Kerberos key version number' EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+    olcObjectClasses: ( 1.3.6.1.4.1.5322.10.2.1 NAME 'krb5Principal' DESC 'Kerberos Principal' SUP top AUXILIARY MAY ( krb5PrincipalName ) )
+    olcObjectClasses: ( 1.3.6.1.4.1.5322.10.2.2 NAME 'krb5KDCEntry' DESC 'Kerberos KDC Entry' SUP krb5Principal AUXILIARY MAY ( krb5KeyVersionNumber ) )
+
+  03b-automount.ldif: |-
+    dn: cn=automount,cn=schema,cn=config
+    objectClass: olcSchemaConfig
+    cn: automount
+    olcAttributeTypes: ( 1.3.6.1.1.1.1.33 NAME 'automountInformation' DESC 'Automount information' EQUALITY caseExactIA5Match SUBSTR caseExactIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 SINGLE-VALUE )
+    olcObjectClasses: ( 1.3.6.1.1.1.2.13 NAME 'automount' DESC 'Automount entry' SUP top AUXILIARY MAY ( automountInformation ) )
 
   04-customerdb.ldif: |-
     dn: cn=customerDb,cn=schema,cn=config
@@ -147,6 +166,8 @@ customSchemaFiles:
     olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.1 NAME 'ucsschoolType' DESC 'UCS School Type' SUP top AUXILIARY MAY ( SchulCloudAdmin ) )
     olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.2 NAME 'ucsschoolStudent' DESC 'UCS School Student' SUP top AUXILIARY )
     olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.3 NAME 'ucsschoolStaff' DESC 'UCS School Staff' SUP top AUXILIARY )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.4 NAME 'ucsschoolTeacher' DESC 'UCS School Teacher' SUP top AUXILIARY )
+    olcObjectClasses: ( 1.3.6.1.4.1.10176.4200.2.5 NAME 'ucsschoolAdministrator' DESC 'UCS School Administrator' SUP top AUXILIARY )
 
 
 # Custom openldap configuration files used to override default settings
