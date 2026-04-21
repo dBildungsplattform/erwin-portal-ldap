@@ -160,38 +160,47 @@ data:
     # Counter for generating unique uidNumber values
     UID_COUNTER=10000
 
+    # Check if attribute exists in LDIF (case-insensitive)
+    has_attr() {
+      local ldif="$1"
+      local attr="$2"
+      echo "$ldif" | grep -iq "^${attr}:"
+    }
+
     # Add missing required attributes for inetOrgPerson/posixAccount
     add_missing_attrs() {
       local ldif="$1"
       local result="$ldif"
-      local uid=$(echo "$ldif" | grep -i "^uid:" | head -1 | cut -d: -f2- | sed 's/^ *//')
+      local uid=""
+      
+      # Extract uid value
+      uid=$(echo "$ldif" | grep -i "^uid:" | head -1 | sed 's/^[^:]*: *//')
       
       # Check if entry has posixAccount objectClass
       if echo "$ldif" | grep -qi "objectClass:.*posixAccount"; then
         # Add uidNumber if missing
-        if ! echo "$ldif" | grep -qi "^uidNumber:"; then
+        if ! has_attr "$ldif" "uidNumber"; then
           UID_COUNTER=$((UID_COUNTER + 1))
-          result=$(echo "$result" | sed "/^objectClass:/a uidNumber: $UID_COUNTER")
+          result=$(printf "%s\nuidNumber: %s" "$result" "$UID_COUNTER")
         fi
         
         # Add gidNumber if missing
-        if ! echo "$ldif" | grep -qi "^gidNumber:"; then
-          result=$(echo "$result" | sed "/^objectClass:/a gidNumber: 10000")
+        if ! has_attr "$ldif" "gidNumber"; then
+          result=$(printf "%s\ngidNumber: 10000" "$result")
         fi
         
         # Add homeDirectory if missing
-        if ! echo "$ldif" | grep -qi "^homeDirectory:"; then
-          local home_dir="/home/${uid:-user}"
-          result=$(echo "$result" | sed "/^objectClass:/a homeDirectory: $home_dir")
+        if ! has_attr "$ldif" "homeDirectory"; then
+          result=$(printf "%s\nhomeDirectory: /home/%s" "$result" "${uid:-user}")
         fi
       fi
       
       # Check if entry needs cn attribute (has inetOrgPerson or posixAccount but no cn)
-      if echo "$ldif" | grep -qi "objectClass:.*\(inetOrgPerson\|posixAccount\)"; then
-        if ! echo "$result" | grep -qi "^cn:"; then
+      if echo "$ldif" | grep -qi "objectClass:.*inetOrgPerson\|objectClass:.*posixAccount"; then
+        if ! has_attr "$ldif" "cn"; then
           # Try to generate cn from givenName + sn, or from uid
-          local givenName=$(echo "$ldif" | grep -i "^givenName:" | head -1 | cut -d: -f2- | sed 's/^ *//')
-          local sn=$(echo "$ldif" | grep -i "^sn:" | head -1 | cut -d: -f2- | sed 's/^ *//')
+          local givenName=$(echo "$ldif" | grep -i "^givenName:" | head -1 | sed 's/^[^:]*: *//')
+          local sn=$(echo "$ldif" | grep -i "^sn:" | head -1 | sed 's/^[^:]*: *//')
           
           local cn_value=""
           if [ -n "$givenName" ] && [ -n "$sn" ]; then
@@ -203,9 +212,15 @@ data:
           fi
           
           if [ -n "$cn_value" ]; then
-            # Insert cn after the dn line
-            result=$(echo "$result" | sed "/^dn:/a cn: $cn_value")
+            result=$(printf "%s\ncn: %s" "$result" "$cn_value")
           fi
+        fi
+      fi
+      
+      # Add sn if missing (required for inetOrgPerson)
+      if echo "$ldif" | grep -qi "objectClass:.*inetOrgPerson"; then
+        if ! has_attr "$ldif" "sn"; then
+          result=$(printf "%s\nsn: %s" "$result" "${uid:-Unknown}")
         fi
       fi
       
