@@ -152,9 +152,23 @@ data:
     LDIF_FILE="$1"
     OVERWRITE="${2:-false}"
 
+    # Filter out operational attributes that cannot be user-modified
+    filter_operational_attrs() {
+      grep -v "^entryUUID:" | grep -v "^#" | grep -v "^$"
+    }
+
     process_entry() {
       local entry_dn="$1"
       local entry_ldif="$2"
+      
+      # Filter out operational attributes from the entry
+      local filtered_ldif=$(echo "$entry_ldif" | filter_operational_attrs)
+      
+      # Skip if entry is empty after filtering
+      if [ -z "$filtered_ldif" ] || ! echo "$filtered_ldif" | grep -q "^dn:"; then
+        echo "Skipping empty or comment-only entry"
+        return
+      fi
 
       # Check if entry exists
       ldapsearch -Y EXTERNAL -H ldapi:/// -b "$entry_dn" -s base -LLL dn > /dev/null 2>&1
@@ -162,13 +176,13 @@ data:
       if [ $? -eq 0 ]; then
         if [ "$OVERWRITE" = true ]; then
           echo "Entry already exists: $entry_dn, updating entry by running ldapmodify"
-          echo "$entry_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:/// 
+          echo "$filtered_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:/// 
         else
           echo "Entry already exists: $entry_dn, skipping ldapmodify"
         fi
       else
         echo "Entry does not exist, adding entry: $entry_dn"
-        echo "$entry_ldif" | ldapadd -Y EXTERNAL -H ldapi:/// 
+        echo "$filtered_ldif" | ldapadd -Y EXTERNAL -H ldapi:/// 
       fi
     }
 
