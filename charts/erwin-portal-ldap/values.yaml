@@ -164,18 +164,11 @@ customLdifFiles:
     o: Training UCS
 
   01-tree.ldif: |-
-    # Base containers at root level
     dn: cn=users,dc=training,dc=ucs
     objectClass: top
     objectClass: organizationalRole
     cn: users
 
-    dn: ou=groups,dc=training,dc=ucs
-    objectClass: top
-    objectClass: organizationalUnit
-    ou: groups
-
-    # Organizational units structure
     dn: ou=100000,dc=training,dc=ucs
     objectClass: top
     objectClass: organizationalUnit
@@ -280,40 +273,7 @@ customLdifFiles:
 # Extra LDIF files applied after initial setup (currently empty - seed data comes from 1Password)
 customExtraLdifFiles:
   apply.ldif: |-
-    # Administrative users and groups required by the system
-    dn: uid=monitoring_user,cn=users,dc=training,dc=ucs
-    objectClass: inetOrgPerson
-    objectClass: organizationalPerson
-    objectClass: person
-    objectClass: top
-    uid: monitoring_user
-    cn: Monitoring User
-    sn: User
-    mail: monitoring@training.ucs
-    userPassword: monitoring123
-
-    dn: uid=admin_user,cn=users,dc=training,dc=ucs
-    objectClass: inetOrgPerson
-    objectClass: organizationalPerson
-    objectClass: person
-    objectClass: top
-    uid: admin_user
-    cn: Admin User
-    sn: User
-    mail: admin@training.ucs
-    userPassword: admin123
-
-    dn: cn=monitoring_group,ou=groups,dc=training,dc=ucs
-    objectClass: groupOfNames
-    objectClass: top
-    cn: monitoring_group
-    member: uid=monitoring_user,cn=users,dc=training,dc=ucs
-
-    dn: cn=admin_group,ou=groups,dc=training,dc=ucs
-    objectClass: groupOfNames
-    objectClass: top
-    cn: admin_group
-    member: uid=admin_user,cn=users,dc=training,dc=ucs
+    # Placeholder - actual user data loaded from seedData secret
 
   modify.ldif: |-
     # Placeholder - modifications if needed
