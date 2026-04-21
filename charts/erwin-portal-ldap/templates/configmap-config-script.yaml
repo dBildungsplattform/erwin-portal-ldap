@@ -157,6 +157,38 @@ data:
       grep -v "^entryUUID:" | grep -v "^#" | grep -v "^$"
     }
 
+    # Add missing required attributes (cn for inetOrgPerson/posixAccount)
+    add_missing_attrs() {
+      local ldif="$1"
+      local result="$ldif"
+      
+      # Check if entry needs cn attribute (has inetOrgPerson or posixAccount but no cn)
+      if echo "$ldif" | grep -qi "objectClass:.*\(inetOrgPerson\|posixAccount\)"; then
+        if ! echo "$ldif" | grep -qi "^cn:"; then
+          # Try to generate cn from givenName + sn, or from uid
+          local givenName=$(echo "$ldif" | grep -i "^givenName:" | head -1 | cut -d: -f2- | sed 's/^ *//')
+          local sn=$(echo "$ldif" | grep -i "^sn:" | head -1 | cut -d: -f2- | sed 's/^ *//')
+          local uid=$(echo "$ldif" | grep -i "^uid:" | head -1 | cut -d: -f2- | sed 's/^ *//')
+          
+          local cn_value=""
+          if [ -n "$givenName" ] && [ -n "$sn" ]; then
+            cn_value="$givenName $sn"
+          elif [ -n "$sn" ]; then
+            cn_value="$sn"
+          elif [ -n "$uid" ]; then
+            cn_value="$uid"
+          fi
+          
+          if [ -n "$cn_value" ]; then
+            # Insert cn after the dn line
+            result=$(echo "$ldif" | sed "/^dn:/a cn: $cn_value")
+          fi
+        fi
+      fi
+      
+      echo "$result"
+    }
+
     process_entry() {
       local entry_dn="$1"
       local entry_ldif="$2"
@@ -169,6 +201,9 @@ data:
         echo "Skipping empty or comment-only entry"
         return
       fi
+      
+      # Add missing required attributes
+      filtered_ldif=$(add_missing_attrs "$filtered_ldif")
 
       # Check if entry exists
       ldapsearch -Y EXTERNAL -H ldapi:/// -b "$entry_dn" -s base -LLL dn > /dev/null 2>&1
