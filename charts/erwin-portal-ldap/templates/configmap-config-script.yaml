@@ -157,18 +157,41 @@ data:
       grep -v "^entryUUID:" | grep -v "^#" | grep -v "^$"
     }
 
-    # Add missing required attributes (cn for inetOrgPerson/posixAccount)
+    # Counter for generating unique uidNumber values
+    UID_COUNTER=10000
+
+    # Add missing required attributes for inetOrgPerson/posixAccount
     add_missing_attrs() {
       local ldif="$1"
       local result="$ldif"
+      local uid=$(echo "$ldif" | grep -i "^uid:" | head -1 | cut -d: -f2- | sed 's/^ *//')
+      
+      # Check if entry has posixAccount objectClass
+      if echo "$ldif" | grep -qi "objectClass:.*posixAccount"; then
+        # Add uidNumber if missing
+        if ! echo "$ldif" | grep -qi "^uidNumber:"; then
+          UID_COUNTER=$((UID_COUNTER + 1))
+          result=$(echo "$result" | sed "/^objectClass:/a uidNumber: $UID_COUNTER")
+        fi
+        
+        # Add gidNumber if missing
+        if ! echo "$ldif" | grep -qi "^gidNumber:"; then
+          result=$(echo "$result" | sed "/^objectClass:/a gidNumber: 10000")
+        fi
+        
+        # Add homeDirectory if missing
+        if ! echo "$ldif" | grep -qi "^homeDirectory:"; then
+          local home_dir="/home/${uid:-user}"
+          result=$(echo "$result" | sed "/^objectClass:/a homeDirectory: $home_dir")
+        fi
+      fi
       
       # Check if entry needs cn attribute (has inetOrgPerson or posixAccount but no cn)
       if echo "$ldif" | grep -qi "objectClass:.*\(inetOrgPerson\|posixAccount\)"; then
-        if ! echo "$ldif" | grep -qi "^cn:"; then
+        if ! echo "$result" | grep -qi "^cn:"; then
           # Try to generate cn from givenName + sn, or from uid
           local givenName=$(echo "$ldif" | grep -i "^givenName:" | head -1 | cut -d: -f2- | sed 's/^ *//')
           local sn=$(echo "$ldif" | grep -i "^sn:" | head -1 | cut -d: -f2- | sed 's/^ *//')
-          local uid=$(echo "$ldif" | grep -i "^uid:" | head -1 | cut -d: -f2- | sed 's/^ *//')
           
           local cn_value=""
           if [ -n "$givenName" ] && [ -n "$sn" ]; then
@@ -181,7 +204,7 @@ data:
           
           if [ -n "$cn_value" ]; then
             # Insert cn after the dn line
-            result=$(echo "$ldif" | sed "/^dn:/a cn: $cn_value")
+            result=$(echo "$result" | sed "/^dn:/a cn: $cn_value")
           fi
         fi
       fi
