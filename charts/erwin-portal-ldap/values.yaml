@@ -74,7 +74,8 @@ env:
   LDAP_ULIMIT_NOFILES: "1024" # staging and prod: 4096
   # if something is not needed it can get removed by just not mentioning it here # order is importand, do not put nis in front, always append it
   # is this is enabled replication is not working
-  LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis,ucsschool
+  # Note: Custom schemas (ucsschool, univention-base, samba, krb5, etc.) are loaded via 01.sh script, not here
+  LDAP_EXTRA_SCHEMAS: cosine,inetorgperson,nis
 
   # Security
   LDAP_ENABLE_TLS: "yes" 
