@@ -17,22 +17,25 @@ metadata:
 {{- end }}
 spec:
   type: {{ .Values.service.type }}
-  {{- if .Values.service.externalIp }}
-  {{- $secretName := .Values.existingSecret.name }}
+
+  {{- $existingSecret := .Values.existingSecret | default dict }}
+  {{- $secretName := $existingSecret.name | default "" }}
+
+  {{- if and .Values.service.externalIp $secretName }}
   {{- $lbSecret := lookup "v1" "Secret" .Release.Namespace $secretName }}
-  {{- if $lbSecret }}
-  loadBalancerIP: {{ $lbSecret.data.LOADBALANCER_IP | b64dec }}
+  {{- if and $lbSecret $lbSecret.data (hasKey $lbSecret.data "LOADBALANCER_IP") }}
+  loadBalancerIP: {{ index $lbSecret.data "LOADBALANCER_IP" | b64dec | quote }}
   {{- end }}
   {{- end }}
-  {{- if  .Values.service.SourceRangesRestriction }}
-  {{- $secretName := .Values.existingSecret.name }}
-  {{- if $secretName }}
+
+  {{- if and .Values.service.SourceRangesRestriction $secretName }}
   {{- $lbSecret := lookup "v1" "Secret" .Release.Namespace $secretName }}
-  {{- if $lbSecret }}
-  loadBalancerSourceRanges: {{ $lbSecret.data.LOADBALANCER_SOURCERANGES | b64dec }}
+  {{- if and $lbSecret $lbSecret.data (hasKey $lbSecret.data "LOADBALANCER_SOURCERANGES") }}
+  loadBalancerSourceRanges:
+{{ index $lbSecret.data "LOADBALANCER_SOURCERANGES" | b64dec | nindent 4 }}
   {{- end }}
   {{- end }}
-  {{- end }}
+
   ports:
     {{- if .Values.service.enableLdapPort }}
     - name: ldap-port
@@ -45,6 +48,7 @@ spec:
       nodePort: null
       {{- end }}
     {{- end }}
+
     {{- if .Values.service.enableSslLdapPort }}
     - name: ssl-ldap-port
       protocol: TCP
@@ -56,6 +60,7 @@ spec:
       nodePort: null
       {{- end }}
     {{- end }}
+
   sessionAffinity: {{ .Values.service.sessionAffinity }}
   selector:
     app.kubernetes.io/component: {{ template "openldap.fullname" . }}
