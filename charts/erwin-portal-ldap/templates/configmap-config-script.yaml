@@ -22,12 +22,110 @@ data:
     # no sure why this sleep is needed again - but it is
     sleep 10
 
-    # Loading Schemas
+    # Loading Schemas in order
+    # Load univention base schema first
+    univention_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*univentionBase)")
+    if (echo "$univention_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for univentionBase Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/02-univention-base.ldif
+    fi
+
+    # Load samba schema
+    samba_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*samba)")
+    if (echo "$samba_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for samba Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03-samba.ldif
+    fi
+
+    # Load krb5 schema (for Kerberos support)
+    krb5_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*krb5)")
+    if (echo "$krb5_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for krb5 Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03a-krb5.ldif
+    fi
+
+    # Load automount schema
+    automount_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*automount)")
+    if (echo "$automount_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for automount Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/03b-automount.ldif
+    fi
+
+    # Load customerdb schema
+    customerdb_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*customerDb)")
+    if (echo "$customerdb_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for customerDb Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/04-customerdb.ldif
+    fi
+
+    # Load ox user schema
+    oxuser_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*oxUser)")
+    if (echo "$oxuser_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for oxUser Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/05-oxuser.ldif
+    fi
+
+    # Load ucsmail schema
     ucsmail_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*ucsMail)")
     if (echo "$ucsmail_search_output" | grep -q "numEntries: 1"); then
       echo "Entry for ucsMail Schema already exists. If you need to modify it, delete it and readd it."
     else
-      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/00-ucsmail.ldif
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/06-ucsmail.ldif
+    fi
+
+    # Load ucsschool schema last (depends on others)
+    ucsschool_search_output=$(ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=schema,cn=config" "(cn=*ucsschool)")
+    if (echo "$ucsschool_search_output" | grep -q "numEntries: 1"); then
+      echo "Entry for ucsschool Schema already exists."
+    else
+      ldapadd -Y EXTERNAL -H ldapi:/// -f /opt/bitnami/openldap/etc/schema/07-ucsschool.ldif
+    fi
+
+    # Ensure base directory structure exists before adding users/groups
+    echo "Ensuring base directory structure exists..."
+
+    # Create base dc=training,dc=ucs if it doesn't exist
+    if ! ldapsearch -Y EXTERNAL -H ldapi:/// -b "dc=training,dc=ucs" -s base "(objectClass=*)" dn 2>/dev/null | grep -q "^dn:"; then
+      echo "Creating dc=training,dc=ucs..."
+      printf '%s\n' \
+        "dn: dc=training,dc=ucs" \
+        "objectClass: top" \
+        "objectClass: dcObject" \
+        "objectClass: organization" \
+        "dc: training" \
+        "o: Training UCS" | ldapadd -Y EXTERNAL -H ldapi:///
+    else
+      echo "dc=training,dc=ucs already exists."
+    fi
+
+    # Create cn=users,dc=training,dc=ucs if it doesn't exist
+    if ! ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=users,dc=training,dc=ucs" -s base "(objectClass=*)" dn 2>/dev/null | grep -q "^dn:"; then
+      echo "Creating cn=users,dc=training,dc=ucs..."
+      printf '%s\n' \
+        "dn: cn=users,dc=training,dc=ucs" \
+        "objectClass: top" \
+        "objectClass: organizationalRole" \
+        "cn: users" | ldapadd -Y EXTERNAL -H ldapi:///
+    else
+      echo "cn=users,dc=training,dc=ucs already exists."
+    fi
+
+    # Create ou=groups,dc=training,dc=ucs if it doesn't exist
+    if ! ldapsearch -Y EXTERNAL -H ldapi:/// -b "ou=groups,dc=training,dc=ucs" -s base "(objectClass=*)" dn 2>/dev/null | grep -q "^dn:"; then
+      echo "Creating ou=groups,dc=training,dc=ucs..."
+      printf '%s\n' \
+        "dn: ou=groups,dc=training,dc=ucs" \
+        "objectClass: top" \
+        "objectClass: organizationalUnit" \
+        "ou: groups" | ldapadd -Y EXTERNAL -H ldapi:///
+    else
+      echo "ou=groups,dc=training,dc=ucs already exists."
     fi
 
     # Adding Config Users from Secret
@@ -35,6 +133,15 @@ data:
     # Adding other Configs from Configmap
     /bin/bash /script/02.sh /ldap-configuration/extra/apply.ldif false
     /bin/bash /script/02.sh /ldap-configuration/extra/modify.ldif true
+
+    # Apply seed data from 1Password secret (if exists)
+    if [ -f /ldap-seed-data/data.ldif ]; then
+      echo "Applying LDAP seed data from secret..."
+      /bin/bash /script/02.sh /ldap-seed-data/data.ldif true
+      echo "LDAP seed data applied successfully."
+    else
+      echo "No seed data file found at /ldap-seed-data/data.ldif, skipping seed data population."
+    fi
 
     
 
@@ -45,9 +152,96 @@ data:
     LDIF_FILE="$1"
     OVERWRITE="${2:-false}"
 
+    # Filter out operational attributes that cannot be user-modified
+    filter_operational_attrs() {
+      grep -v "^entryUUID:" | grep -v "^#" | grep -v "^$"
+    }
+
+    # Counter for generating unique uidNumber values
+    UID_COUNTER=10000
+
+    # Check if attribute exists in LDIF (case-insensitive)
+    has_attr() {
+      local ldif="$1"
+      local attr="$2"
+      echo "$ldif" | grep -iq "^${attr}:"
+    }
+
+    # Add missing required attributes for inetOrgPerson/posixAccount
+    add_missing_attrs() {
+      local ldif="$1"
+      local result="$ldif"
+      local uid=""
+      
+      # Extract uid value
+      uid=$(echo "$ldif" | grep -i "^uid:" | head -1 | sed 's/^[^:]*: *//')
+      
+      # Check if entry has posixAccount objectClass
+      if echo "$ldif" | grep -qi "objectClass:.*posixAccount"; then
+        # Add uidNumber if missing
+        if ! has_attr "$ldif" "uidNumber"; then
+          UID_COUNTER=$((UID_COUNTER + 1))
+          result=$(printf "%s\nuidNumber: %s" "$result" "$UID_COUNTER")
+        fi
+        
+        # Add gidNumber if missing
+        if ! has_attr "$ldif" "gidNumber"; then
+          result=$(printf "%s\ngidNumber: 10000" "$result")
+        fi
+        
+        # Add homeDirectory if missing
+        if ! has_attr "$ldif" "homeDirectory"; then
+          result=$(printf "%s\nhomeDirectory: /home/%s" "$result" "${uid:-user}")
+        fi
+      fi
+      
+      # Check if entry needs cn attribute (has inetOrgPerson or posixAccount but no cn)
+      if echo "$ldif" | grep -qi "objectClass:.*inetOrgPerson\|objectClass:.*posixAccount"; then
+        if ! has_attr "$ldif" "cn"; then
+          # Try to generate cn from givenName + sn, or from uid
+          local givenName=$(echo "$ldif" | grep -i "^givenName:" | head -1 | sed 's/^[^:]*: *//')
+          local sn=$(echo "$ldif" | grep -i "^sn:" | head -1 | sed 's/^[^:]*: *//')
+          
+          local cn_value=""
+          if [ -n "$givenName" ] && [ -n "$sn" ]; then
+            cn_value="$givenName $sn"
+          elif [ -n "$sn" ]; then
+            cn_value="$sn"
+          elif [ -n "$uid" ]; then
+            cn_value="$uid"
+          fi
+          
+          if [ -n "$cn_value" ]; then
+            result=$(printf "%s\ncn: %s" "$result" "$cn_value")
+          fi
+        fi
+      fi
+      
+      # Add sn if missing (required for inetOrgPerson)
+      if echo "$ldif" | grep -qi "objectClass:.*inetOrgPerson"; then
+        if ! has_attr "$ldif" "sn"; then
+          result=$(printf "%s\nsn: %s" "$result" "${uid:-Unknown}")
+        fi
+      fi
+      
+      echo "$result"
+    }
+
     process_entry() {
       local entry_dn="$1"
       local entry_ldif="$2"
+      
+      # Filter out operational attributes from the entry
+      local filtered_ldif=$(echo "$entry_ldif" | filter_operational_attrs)
+      
+      # Skip if entry is empty after filtering
+      if [ -z "$filtered_ldif" ] || ! echo "$filtered_ldif" | grep -q "^dn:"; then
+        echo "Skipping empty or comment-only entry"
+        return
+      fi
+      
+      # Add missing required attributes
+      filtered_ldif=$(add_missing_attrs "$filtered_ldif")
 
       # Check if entry exists
       ldapsearch -Y EXTERNAL -H ldapi:/// -b "$entry_dn" -s base -LLL dn > /dev/null 2>&1
@@ -55,13 +249,13 @@ data:
       if [ $? -eq 0 ]; then
         if [ "$OVERWRITE" = true ]; then
           echo "Entry already exists: $entry_dn, updating entry by running ldapmodify"
-          echo "$entry_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:/// 
+          echo "$filtered_ldif" | sed 's/^dn: .*/changetype: modify/' | ldapmodify -Y EXTERNAL -H ldapi:/// 
         else
           echo "Entry already exists: $entry_dn, skipping ldapmodify"
         fi
       else
         echo "Entry does not exist, adding entry: $entry_dn"
-        echo "$entry_ldif" | ldapadd -Y EXTERNAL -H ldapi:/// 
+        echo "$filtered_ldif" | ldapadd -Y EXTERNAL -H ldapi:/// 
       fi
     }
 
